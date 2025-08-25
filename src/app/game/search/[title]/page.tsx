@@ -18,12 +18,12 @@ async function getData(title: string): Promise<GameProps[] | null>{
 
 export default async function Search(
     {
-        params: { title }
+        params
     } : { 
-        params: {title: string }
+        params: Promise<{title: string}>
 }){
-   
-    const games = await getData(title)
+    const resolvedParams = await params;
+    const games = await getData(resolvedParams.title)
 
     return(
         <div>

@@ -7,14 +7,16 @@ import { GameCard } from "@/components/GameCard";
 import { Metadata } from "next";
 
 interface PropsParams{
-    params: {
+    params: Promise<{
         id: string;
-    }
+    }>
 }
 
 export async function generateMetadata({ params}: PropsParams): Promise<Metadata>{
+    const resolvedParams = await params;
+    
     try{
-        const response: GameProps = await fetch(`http://sujeitoprogramador.com/next-api/?api=game&id=${params.id}`, {  next: {revalidate: 60}})
+        const response: GameProps = await fetch(`http://sujeitoprogramador.com/next-api/?api=game&id=${resolvedParams.id}`, {  next: {revalidate: 60}})
         .then((res) => res.json())
         .catch(() => {
         return {
@@ -60,19 +62,20 @@ async function getGameSorted() {
     
 }
 
-export default async function Game({
-    params: { id }
-}: {
-    params: {id: string }
-}){
+interface GamePageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
 
-    const data: GameProps = await getData(id);
-    const SortedGame: GameProps = await getGameSorted();
+export default async function Game({ params }: GamePageProps) {
+  const resolvedParams = await params;
+  const data: GameProps = await getData(resolvedParams.id);
+  const SortedGame: GameProps = await getGameSorted();
 
-
-   if(!data){
-    redirect('/')
-   }
+  if (!data) {
+    redirect('/');
+  }
     return(
         <main className="w-full text-black" >
             <div className="bg-black h-80 sm:h-96 w-full relative">
